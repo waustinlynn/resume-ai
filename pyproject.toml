@@ -2,14 +2,10 @@
 name = "resume-ai"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Austin Lynn"}
-]
+authors = [{ name = "Austin Lynn" }]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "fastapi[standard] (>=0.115.6,<0.116.0)"
-]
+dependencies = ["fastapi[standard] (>=0.115.6,<0.116.0)"]
 
 
 [build-system]
@@ -18,4 +14,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
+pytest = "^8.3.4"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

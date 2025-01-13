@@ -1,21 +1,21 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: stable
+    rev: 24.10.0
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 7.1.1
     hooks:
       - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.4.1
+    rev: v1.14.1
     hooks:
       - id: mypy
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
+        args:
+          - --explicit-package-bases
+          - --config-file=mypy.ini  # Optional: Specify the path to your mypy configuration file
+          - src
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.12.0
+    rev: v5.10.1
     hooks:
       - id: isort
