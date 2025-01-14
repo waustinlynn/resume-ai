@@ -7,7 +7,7 @@ from pydantic import BaseModel, model_validator
 class Profile(BaseModel):
     id: str
     email: str
-    phone_number: Optional[str]
+    phone_number: Optional[str] = None
     first_name: str
     last_name: str
 
