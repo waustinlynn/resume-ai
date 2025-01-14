@@ -13,7 +13,7 @@ class Profile(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def set_default_status(cls, values):
+    def set_default_id(cls, values):
         """
         A model validator that sets a default value for the 'id' field
         if it is not provided during initialization.
