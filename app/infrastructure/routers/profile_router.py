@@ -1,34 +1,21 @@
 from fastapi import APIRouter, Depends, status
-from fastapi.responses import JSONResponse
 
 from app.domain.models.profile import Profile
-from app.domain.services.abstract_profile_service import (
-    AbstractProfileService,
-    MissingProfileError,
+from app.domain.models.resume import Resume
+from app.infrastructure.factories import get_abstract_resume_persistence
+from app.infrastructure.middleware.header_verification_middleware import (
+    get_hashed_email_from_header,
 )
-from app.infrastructure.factories import get_abstract_profile_service
 
 router = APIRouter()
-
-
-@router.get("/{profile_id}", response_model=Profile)
-async def get_profile(
-    profile_id: str,
-    abstract_profile_service: AbstractProfileService = Depends(
-        get_abstract_profile_service
-    ),
-) -> Profile:
-    try:
-        return abstract_profile_service.get_profile(profile_id)
-    except MissingProfileError:
-        return JSONResponse(status_code=400, content={"message": "Profile not found"})
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_profile(
     profile: Profile,
-    abstract_profile_service: AbstractProfileService = Depends(
-        get_abstract_profile_service
-    ),
-) -> Profile:
-    return abstract_profile_service.create_profile(profile)
+    hashed_email: str = Depends(get_hashed_email_from_header),
+    abstract_resume_persistence=Depends(get_abstract_resume_persistence),
+) -> Resume:
+    resume = Resume(**{"id": hashed_email, "profile": profile})
+    abstract_resume_persistence.create_resume(resume)
+    return resume

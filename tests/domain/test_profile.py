@@ -1,5 +1,4 @@
 import unittest
-from uuid import uuid4
 
 import pytest
 from pydantic import ValidationError
@@ -17,15 +16,7 @@ class ProfileTest(unittest.TestCase):
         """Test that a valid User model can be created."""
 
         profile = Profile(**self.values)
-        assert profile.id is not None
-
-    def test_profile_creation_with_specified_id(self):
-        """Test that a User model can be created with a specified id."""
-        str_uuid = str(uuid4())
-        self.values["id"] = str_uuid
-        profile = Profile(**self.values)
-        assert profile.id == str_uuid
-        assert profile.email == self.values["email"]
+        assert profile is not None
 
     def test_profile_with_bad_first_name_types_throws_validation_exception(self):
         """

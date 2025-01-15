@@ -1,45 +1,49 @@
+import pytest
 from fastapi.testclient import TestClient
 
-from app.domain.models.profile import Profile
-from app.domain.services.abstract_profile_service import (
-    AbstractProfileService,
-    MissingProfileError,
+from app.domain.models.resume import Resume
+from app.infrastructure.persistence.abstract_resume_persistence import (
+    AbstractResumePersistence,
 )
+from app.infrastructure.settings import Settings
+from app.infrastructure.utilities.hashing import hash_value
 from tests.domain.model_creator import get_profile_dict
 
 
-def test_create_profile_calls_profile_service_create_profile(
-    test_app_client_with_abstract_profile: tuple[TestClient, AbstractProfileService]
+@pytest.fixture(scope="function")
+def hashed_email(test_email_address: str) -> str:
+    settings = Settings()
+    return hash_value(test_email_address, settings.hashing_secret)
+
+
+def test_create_profile_returns_resume(
+    test_app_client: TestClient, test_client_headers: dict, hashed_email: str
 ):
-    test_app_client, mock_profile_service = test_app_client_with_abstract_profile
     profile_dict = get_profile_dict()
-    mock_profile_service.create_profile.return_value = Profile(**profile_dict)
-    response = test_app_client.post("/profile/", json=profile_dict)
+    response = test_app_client.post(
+        "/api/profile/", json=profile_dict, headers=test_client_headers
+    )
     assert response.status_code == 201
-    mock_profile_service.create_profile.assert_called_once()
+    resume = Resume(**response.json())
+    assert resume.profile.email == profile_dict["email"]
+    assert resume.profile.first_name == profile_dict["first_name"]
+    assert resume.profile.last_name == profile_dict["last_name"]
+    assert resume.profile.phone_number == profile_dict["phone_number"]
+    assert resume.id == hashed_email
 
 
-def test_get_profile_for_missing_profile_returns_400(
-    test_app_client_with_abstract_profile: tuple[TestClient, AbstractProfileService]
+def test_create_profile_calls_abstract_resume_persistence(
+    test_app_client_with_abstract_resume_persistence: tuple[
+        TestClient, AbstractResumePersistence
+    ],
+    test_client_headers: dict,
 ):
-    test_app_client, mock_profile_service = test_app_client_with_abstract_profile
-    profile = Profile(**get_profile_dict())
-    mock_profile_service.get_profile.side_effect = MissingProfileError()
-    response = test_app_client.get(f"/profile/{profile.id}")
-    assert response.status_code == 400
-    assert response.json() == {"message": "Profile not found"}
-
-
-def test_get_profile_for_existing_profile_returns_profile(
-    test_app_client_with_abstract_profile: tuple[TestClient, AbstractProfileService]
-):
-    test_app_client, mock_profile_service = test_app_client_with_abstract_profile
-    profile = Profile(**get_profile_dict())
-    mock_profile_service.get_profile.return_value = profile
-    response = test_app_client.get(f"/profile/{profile.id}")
-    assert response.status_code == 200
-    response_data = response.json()
-    assert response_data["id"] == profile.id
-    assert response_data["email"] == profile.email
-    assert response_data["first_name"] == profile.first_name
-    assert response_data["last_name"] == profile.last_name
+    profile_dict = get_profile_dict()
+    test_app_client, mock_abstract_resume_persistence = (
+        test_app_client_with_abstract_resume_persistence
+    )
+    response = test_app_client.post(
+        "/api/profile/", json=profile_dict, headers=test_client_headers
+    )
+    assert response.status_code == 201
+    mock_abstract_resume_persistence.create_resume.assert_called_once()

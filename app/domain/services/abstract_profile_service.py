@@ -25,7 +25,3 @@ class ProfileService(AbstractProfileService):
             "last_name": "User",
         }
         return Profile(**profile)
-
-
-class MissingProfileError(Exception):
-    pass
