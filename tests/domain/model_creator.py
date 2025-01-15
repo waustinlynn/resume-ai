@@ -22,3 +22,13 @@ def get_experience_dict():
             {"description": "I did another thing."},
         ],
     }
+
+
+def get_education_dict():
+    return {
+        "institution_name": "University of Awesome",
+        "degree": "Computer Science",
+        "field_of_study": "Software Engineering",
+        "graduation_month": 1,
+        "graduaction_year": 2020,
+    }

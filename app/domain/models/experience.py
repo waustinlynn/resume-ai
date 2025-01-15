@@ -21,6 +21,7 @@ class Highlight(BaseModel):
 
 
 class Experience(BaseModel):
+    id: str
     company_name: str
     location: str
     title: str
@@ -35,5 +36,20 @@ class Experience(BaseModel):
     def is_current(self):
         return self.end_month is None and self.end_year is None
 
+    @model_validator(mode="before")
+    @classmethod
+    def set_default_id(cls, values):
+        """
+        A model validator that sets a default value for the 'id' field
+        if it is not provided during initialization.
+        """
+        if "id" not in values:
+            values["id"] = str(uuid4())
+        return values
+
     def add_highlight(self, highlight: str):
         self.highlights.append(Highlight(description=highlight))
+
+
+class MissingExperienceException(Exception):
+    pass
