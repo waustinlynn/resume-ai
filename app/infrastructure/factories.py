@@ -35,7 +35,7 @@ def get_dynamo_db_client() -> DynamoDBServiceResource:  # type: ignore
     return GLOBAL_DYNAMODB_CLIENT
 
 
-def get_resume_table_name() -> Table:  # type: ignore
+def get_resume_table() -> Table:  # type: ignore
     client = get_dynamo_db_client()
     # throws ResourceInUseException if table already exists
     try:
@@ -50,4 +50,4 @@ def get_resume_table_name() -> Table:  # type: ignore
 
 
 def get_abstract_resume_persistence() -> AbstractResumePersistence:  # type: ignore
-    return ResumePersistence(get_resume_table_name())
+    return ResumePersistence(get_resume_table())

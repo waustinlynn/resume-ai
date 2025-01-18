@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from mypy_boto3_dynamodb.service_resource import Table
 
-from app.domain.models.resume import Resume
+from app.domain.models.resume import MissingResumeException, Resume
 
 
 class AbstractResumePersistence(ABC):
@@ -35,5 +35,7 @@ class ResumePersistence(AbstractResumePersistence):
         resource = self.table.get_item(
             Key={"id": resume_id, "document_type": self.document_type}
         )
+        if "Item" not in resource:
+            raise MissingResumeException(f"Resume with ID {resume_id} not found")
         print(resource)
         return Resume(**resource["Item"])
