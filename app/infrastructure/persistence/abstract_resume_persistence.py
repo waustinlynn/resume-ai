@@ -20,14 +20,20 @@ class AbstractResumePersistence(ABC):
 
 
 class ResumePersistence(AbstractResumePersistence):
+    document_type = "resume"
+
     def __init__(self, table: Table):
         self.table = table
 
     def create_resume(self, resume: Resume) -> Resume:
         resume_dict = resume.model_dump()
-        resume_dict["document_type"] = "resume"
+        resume_dict["document_type"] = self.document_type
         self.table.put_item(Item=resume_dict)
         return resume
 
     def get_resume(self, resume_id: str) -> Resume:
-        pass
+        resource = self.table.get_item(
+            Key={"id": resume_id, "document_type": self.document_type}
+        )
+        print(resource)
+        return Resume(**resource["Item"])
