@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Pytest Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-m",
+                "integration",
+                "-s"
+            ],
+            "justMyCode": false, // Set to true to debug only your code, not libraries
+            "console": "integratedTerminal", // Use "integratedTerminal" or "internalConsole"
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}" // Ensures your project root is in the path
+            }
+        }
+    ]
+}

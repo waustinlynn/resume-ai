@@ -16,6 +16,7 @@ def hashed_email(test_email_address: str) -> str:
     return hash_value(test_email_address, settings.hashing_secret)
 
 
+@pytest.mark.integration
 def test_create_profile_returns_resume(
     test_app_client: TestClient, test_client_headers: dict, hashed_email: str
 ):
@@ -32,6 +33,7 @@ def test_create_profile_returns_resume(
     assert resume.id == hashed_email
 
 
+@pytest.mark.integration
 def test_create_profile_calls_abstract_resume_persistence(
     test_app_client_with_abstract_resume_persistence: tuple[
         TestClient, AbstractResumePersistence

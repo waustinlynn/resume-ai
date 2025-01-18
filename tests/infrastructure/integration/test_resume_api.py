@@ -27,6 +27,7 @@ def get_resume_by_specific_id(
     return _get_resume
 
 
+@pytest.mark.integration
 def test_get_resume_returns_resume(
     test_app_client_with_abstract_resume_persistence: tuple[
         TestClient, AbstractResumePersistence
@@ -45,6 +46,7 @@ def test_get_resume_returns_resume(
     assert response_resume.id == resume.id
 
 
+@pytest.mark.integration
 def test_get_resume_throws_400_if_no_resume_found(
     test_app_client_with_abstract_resume_persistence: tuple[
         TestClient, AbstractResumePersistence

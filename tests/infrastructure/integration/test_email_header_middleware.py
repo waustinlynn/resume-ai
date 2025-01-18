@@ -1,6 +1,8 @@
+import pytest
 from fastapi.testclient import TestClient
 
 
+@pytest.mark.integration
 def test_api_call_without_proper_header_returns_400(test_app_client: TestClient):
     response = test_app_client.post("/api/profile/", json={})
     assert response.status_code == 400

@@ -1,8 +1,10 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from tests.domain.model_creator import get_profile_dict
 
 
+@pytest.mark.integration
 def test_can_create_profile(test_app_client: TestClient, test_client_headers: dict):
     profile_dict = get_profile_dict()
     response = test_app_client.post(
@@ -14,6 +16,7 @@ def test_can_create_profile(test_app_client: TestClient, test_client_headers: di
     assert response.json()["profile"]["last_name"] == profile_dict["last_name"]
 
 
+@pytest.mark.integration
 def test_missing_profile_data_throws_422(
     test_app_client: TestClient, test_client_headers: dict
 ):
@@ -26,6 +29,7 @@ def test_missing_profile_data_throws_422(
     assert ["body", "last_name"] in [error["loc"] for error in json_response_detail]
 
 
+@pytest.mark.integration
 def test_missing_phone_number_returns_201(
     test_app_client: TestClient, test_client_headers: dict
 ):
@@ -39,6 +43,7 @@ def test_missing_phone_number_returns_201(
     assert response.json()["profile"]["phone_number"] is None
 
 
+@pytest.mark.integration
 def test_bad_first_name_data_type_throws_422(
     test_app_client: TestClient, test_client_headers: dict
 ):
