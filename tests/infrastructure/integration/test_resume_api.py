@@ -2,6 +2,7 @@ from typing import Callable
 
 import pytest
 from fastapi.testclient import TestClient
+from mypy_boto3_dynamodb.service_resource import Table
 
 from app.domain.models.resume import MissingResumeException, Resume
 from app.infrastructure.persistence.abstract_resume_persistence import (
@@ -27,19 +28,22 @@ def get_resume_by_specific_id(
     return _get_resume
 
 
+@pytest.fixture(scope="function")
+def saved_resumed(test_table: Table, resume: Resume) -> Resume:
+    resume_dict = resume.model_dump()
+    resume_dict["document_type"] = "resume"
+    test_table.put_item(Item=resume_dict)
+    return resume
+
+
 @pytest.mark.integration
 def test_get_resume_returns_resume(
-    test_app_client_with_abstract_resume_persistence: tuple[
-        TestClient, AbstractResumePersistence
-    ],
+    test_app_client: TestClient,
+    test_abstract_resume_persistence: AbstractResumePersistence,
     test_client_headers: dict,
-    get_resume_by_specific_id: Callable[[str], Resume],
     resume: Resume,
 ):
-    test_app_client, mock_abstract_resume_persistence = (
-        test_app_client_with_abstract_resume_persistence
-    )
-    mock_abstract_resume_persistence.get_resume.side_effect = get_resume_by_specific_id
+    test_abstract_resume_persistence.create_resume(resume)
     response = test_app_client.get("/api/resume/", headers=test_client_headers)
     assert response.status_code == 200
     response_resume = Resume(**response.json())
@@ -48,15 +52,8 @@ def test_get_resume_returns_resume(
 
 @pytest.mark.integration
 def test_get_resume_throws_400_if_no_resume_found(
-    test_app_client_with_abstract_resume_persistence: tuple[
-        TestClient, AbstractResumePersistence
-    ],
-    get_resume_by_specific_id: Callable[[str], Resume],
+    test_app_client: TestClient,
 ):
-    test_app_client, mock_abstract_resume_persistence = (
-        test_app_client_with_abstract_resume_persistence
-    )
-    mock_abstract_resume_persistence.get_resume.side_effect = get_resume_by_specific_id
     response = test_app_client.get(
         "/api/resume/", headers={"x-email-header": "not_found"}
     )

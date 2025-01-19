@@ -19,7 +19,6 @@ app.mount("/api", api_app)
 
 @app.exception_handler(ValidationError)
 async def validation_exception_handler(request: Request, exc: ValidationError):
-    print(exc)
     return JSONResponse(
         status_code=422,  # Unprocessable Entity
         content={

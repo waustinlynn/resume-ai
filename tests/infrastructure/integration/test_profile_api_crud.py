@@ -34,18 +34,15 @@ def test_create_profile_returns_resume(
 
 
 @pytest.mark.integration
-def test_create_profile_calls_abstract_resume_persistence(
-    test_app_client_with_abstract_resume_persistence: tuple[
-        TestClient, AbstractResumePersistence
-    ],
+def test_create_profile_creates_resume_in_db(
+    test_app_client: TestClient,
+    test_abstract_resume_persistence: AbstractResumePersistence,
     test_client_headers: dict,
 ):
     profile_dict = get_profile_dict()
-    test_app_client, mock_abstract_resume_persistence = (
-        test_app_client_with_abstract_resume_persistence
-    )
     response = test_app_client.post(
         "/api/profile/", json=profile_dict, headers=test_client_headers
     )
     assert response.status_code == 201
-    mock_abstract_resume_persistence.create_resume.assert_called_once()
+    resume = test_abstract_resume_persistence.get_resume(response.json()["id"])
+    assert resume.profile.email == profile_dict["email"]

@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 import pytest
 from fastapi.testclient import TestClient
 from mypy_boto3_dynamodb.service_resource import Table
@@ -10,6 +8,7 @@ from app.infrastructure.factories import (
 )
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
+    ResumePersistence,
 )
 from app.infrastructure.settings import Settings
 from app.infrastructure.utilities.hashing import hash_value
@@ -18,26 +17,25 @@ from app.main import api_app, app
 settings = Settings()
 
 
-@pytest.fixture(scope="session")
-def test_app_client() -> TestClient:  # type: ignore
-    client = TestClient(app)
-    yield client
+@pytest.fixture(scope="function")
+def test_abstract_resume_persistence(
+    test_resume_table: Table,
+) -> AbstractResumePersistence:
+    return ResumePersistence(test_resume_table)
 
 
 @pytest.fixture(scope="function")
-def test_app_client_with_abstract_resume_persistence() -> (
-    tuple[TestClient, AbstractResumePersistence]
-):  # type: ignore
-    mock_abstract_resume_persistence = MagicMock(spec=AbstractResumePersistence)
-
-    def _get_mock_abstract_resume_persistence():
-        return mock_abstract_resume_persistence
+def test_app_client(
+    test_abstract_resume_persistence: AbstractResumePersistence,
+) -> TestClient:  # type: ignore
+    def _get_abstract_resume_persistence():
+        return test_abstract_resume_persistence
 
     api_app.dependency_overrides[get_abstract_resume_persistence] = (
-        _get_mock_abstract_resume_persistence
+        _get_abstract_resume_persistence
     )
     client = TestClient(app)
-    yield client, mock_abstract_resume_persistence
+    yield client
     api_app.dependency_overrides.clear()
 
 

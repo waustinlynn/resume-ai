@@ -24,6 +24,7 @@ class ResumePersistence(AbstractResumePersistence):
 
     def __init__(self, table: Table):
         self.table = table
+        print("Creating ResumePersistence")
 
     def create_resume(self, resume: Resume) -> Resume:
         resume_dict = resume.model_dump()
@@ -36,6 +37,5 @@ class ResumePersistence(AbstractResumePersistence):
             Key={"id": resume_id, "document_type": self.document_type}
         )
         if "Item" not in resource:
-            raise MissingResumeException(f"Resume with ID {resume_id} not found")
-        print(resource)
+            raise MissingResumeException("Resume not found")
         return Resume(**resource["Item"])

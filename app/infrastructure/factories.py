@@ -15,16 +15,8 @@ GLOBAL_DYNAMODB_CLIENT: DynamoDBServiceResource = None
 
 
 def get_dynamo_db_client() -> DynamoDBServiceResource:  # type: ignore
-    # return boto3.resource(
-    #     "dynamodb",
-    #     region_name="us-west-2",
-    #     endpoint_url=settings.db_host,
-    #     aws_access_key_id=settings.db_aws_access_key_id,
-    #     aws_secret_access_key=settings.db_aws_secret_access_key,
-    # )
     global GLOBAL_DYNAMODB_CLIENT
     if not GLOBAL_DYNAMODB_CLIENT:
-        print("Creating new DynamoDB client")
         GLOBAL_DYNAMODB_CLIENT = boto3.resource(
             "dynamodb",
             region_name="us-west-2",
