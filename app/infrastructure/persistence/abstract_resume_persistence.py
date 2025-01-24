@@ -24,7 +24,6 @@ class ResumePersistence(AbstractResumePersistence):
 
     def __init__(self, table: Table):
         self.table = table
-        print("Creating ResumePersistence")
 
     def create_resume(self, resume: Resume) -> Resume:
         resume_dict = resume.model_dump()

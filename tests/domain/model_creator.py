@@ -1,3 +1,6 @@
+from app.domain.models.resume import Resume
+
+
 def get_profile_dict():
     return {
         "email": "test@email.com",
@@ -32,3 +35,12 @@ def get_education_dict():
         "graduation_month": 1,
         "graduaction_year": 2020,
     }
+
+
+def get_resume(id: str) -> Resume:
+    return Resume(
+        id=id,
+        profile=get_profile_dict(),
+        experiences=[get_experience_dict()],
+        educations=[get_education_dict()],
+    )

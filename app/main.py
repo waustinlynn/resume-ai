@@ -5,12 +5,13 @@ from pydantic import ValidationError
 from app.infrastructure.middleware.header_verification_middleware import (
     EmailHeaderMiddleware,
 )
-from app.infrastructure.routers import profile_router, resume_router
+from app.infrastructure.routers import curate_router, profile_router, resume_router
 
 api_app = FastAPI()
 api_app.add_middleware(EmailHeaderMiddleware)
 api_app.include_router(profile_router.router, prefix="/profile", tags=["profile"])
 api_app.include_router(resume_router.router, prefix="/resume", tags=["resume"])
+api_app.include_router(curate_router.router, prefix="/curate", tags=["curate"])
 
 
 app = FastAPI()
