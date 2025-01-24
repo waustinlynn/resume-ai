@@ -1,10 +1,9 @@
-from typing import Callable
-
 import pytest
 from fastapi.testclient import TestClient
 from mypy_boto3_dynamodb.service_resource import Table
 
-from app.domain.models.resume import MissingResumeException, Resume
+from app.domain.models.resume import Resume
+from app.infrastructure.factories import get_abstract_resume_persistence
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
 )
@@ -14,18 +13,6 @@ from tests.domain.model_creator import get_profile_dict
 @pytest.fixture(scope="function")
 def resume(test_hashed_email: str) -> Resume:
     return Resume(**{"id": test_hashed_email, "profile": get_profile_dict()})
-
-
-@pytest.fixture(scope="function")
-def get_resume_by_specific_id(
-    test_hashed_email: str, resume: Resume
-) -> Callable[[str], Resume]:
-    def _get_resume(id: str) -> Resume:
-        if id == test_hashed_email:
-            return resume
-        raise MissingResumeException("Resume not found")
-
-    return _get_resume
 
 
 @pytest.fixture(scope="function")
@@ -39,9 +26,9 @@ def saved_resumed(test_table: Table, resume: Resume) -> Resume:
 @pytest.mark.integration
 def test_get_resume_returns_resume(
     test_app_client: TestClient,
-    test_abstract_resume_persistence: AbstractResumePersistence,
     test_client_headers: dict,
     resume: Resume,
+    test_abstract_resume_persistence: AbstractResumePersistence = get_abstract_resume_persistence(),
 ):
     test_abstract_resume_persistence.create_resume(resume)
     response = test_app_client.get("/api/resume/", headers=test_client_headers)

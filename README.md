@@ -21,3 +21,14 @@ Resume
 
 JobDescription
   * POST
+
+## Running
+### Tests
+Locally
+  * `docker compose up -d`
+  * `pytest`
+
+CI
+  * `make test`
+  * `make test-integration
+

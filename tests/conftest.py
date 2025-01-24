@@ -2,41 +2,17 @@ import pytest
 from fastapi.testclient import TestClient
 from mypy_boto3_dynamodb.service_resource import Table
 
-from app.infrastructure.factories import (
-    get_abstract_resume_persistence,
-    get_resume_table,
-)
-from app.infrastructure.persistence.abstract_resume_persistence import (
-    AbstractResumePersistence,
-    ResumePersistence,
-)
+from app.infrastructure.factories import get_resume_table
 from app.infrastructure.settings import Settings
 from app.infrastructure.utilities.hashing import hash_value
-from app.main import api_app, app
+from app.main import app
 
 settings = Settings()
 
 
 @pytest.fixture(scope="function")
-def test_abstract_resume_persistence(
-    test_resume_table: Table,
-) -> AbstractResumePersistence:
-    return ResumePersistence(test_resume_table)
-
-
-@pytest.fixture(scope="function")
-def test_app_client(
-    test_abstract_resume_persistence: AbstractResumePersistence,
-) -> TestClient:  # type: ignore
-    def _get_abstract_resume_persistence():
-        return test_abstract_resume_persistence
-
-    api_app.dependency_overrides[get_abstract_resume_persistence] = (
-        _get_abstract_resume_persistence
-    )
-    client = TestClient(app)
-    yield client
-    api_app.dependency_overrides.clear()
+def test_app_client() -> TestClient:  # type: ignore
+    return TestClient(app)
 
 
 @pytest.fixture(scope="function")

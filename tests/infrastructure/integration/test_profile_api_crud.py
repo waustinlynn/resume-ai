@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.domain.models.resume import Resume
+from app.infrastructure.factories import get_abstract_resume_persistence
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
 )
@@ -36,8 +37,8 @@ def test_create_profile_returns_resume(
 @pytest.mark.integration
 def test_create_profile_creates_resume_in_db(
     test_app_client: TestClient,
-    test_abstract_resume_persistence: AbstractResumePersistence,
     test_client_headers: dict,
+    test_abstract_resume_persistence: AbstractResumePersistence = get_abstract_resume_persistence(),
 ):
     profile_dict = get_profile_dict()
     response = test_app_client.post(

@@ -1,6 +1,10 @@
 import boto3
 from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 
+from app.infrastructure.chat.abstract_chat_completion import (
+    AbstractChatCompletion,
+    ChatCompletionService,
+)
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
     ResumePersistence,
@@ -43,3 +47,7 @@ def get_resume_table() -> Table:  # type: ignore
 
 def get_abstract_resume_persistence() -> AbstractResumePersistence:  # type: ignore
     return ResumePersistence(get_resume_table())
+
+
+def get_abstract_chat_completion() -> AbstractChatCompletion:
+    return ChatCompletionService()
