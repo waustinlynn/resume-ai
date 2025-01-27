@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from mypy_boto3_dynamodb.service_resource import Table
 
-from app.domain.models.resume import MissingResumeException, Resume
+from app.domain.models.resume import Resume, ResumeException
 
 
 class AbstractResumePersistence(ABC):
@@ -18,6 +18,13 @@ class AbstractResumePersistence(ABC):
         """
         pass
 
+    @abstractmethod
+    def update_resume(self, resume: Resume) -> Resume:
+        """
+        Update a resume by its ID
+        """
+        pass
+
 
 class ResumePersistence(AbstractResumePersistence):
     document_type = "resume"
@@ -26,6 +33,16 @@ class ResumePersistence(AbstractResumePersistence):
         self.table = table
 
     def create_resume(self, resume: Resume) -> Resume:
+        existing_resume = None
+        try:
+            existing_resume = self.get_resume(resume.id)
+        except ResumeException:
+            pass
+
+        print(existing_resume)
+        if existing_resume:
+            raise ResumeException("Resume already exists")
+
         resume_dict = resume.model_dump()
         resume_dict["document_type"] = self.document_type
         self.table.put_item(Item=resume_dict)
@@ -36,5 +53,12 @@ class ResumePersistence(AbstractResumePersistence):
             Key={"id": resume_id, "document_type": self.document_type}
         )
         if "Item" not in resource:
-            raise MissingResumeException("Resume not found")
+            raise ResumeException("Resume not found")
         return Resume(**resource["Item"])
+
+    def update_resume(self, resume: Resume) -> Resume:
+        self.get_resume(resume.id)
+        resume_dict = resume.model_dump()
+        resume_dict["document_type"] = self.document_type
+        self.table.put_item(Item=resume_dict)
+        return resume

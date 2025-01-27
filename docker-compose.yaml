@@ -3,7 +3,7 @@ services:
     image: amazon/dynamodb-local
     container_name: dynamodb_local
     ports:
-      - "8000:8000"
+      - "5000:8000"
     volumes:
       - dynamodb_data:/home/dynamodblocal/data
     environment:

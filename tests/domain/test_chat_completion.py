@@ -5,13 +5,13 @@ import pytest
 from app.domain.models.chat_completion import ChatCompletion
 from app.domain.models.experience import MissingExperienceException
 from app.domain.models.resume import Resume
-from tests.domain.model_creator import get_resume
+from tests.domain.model_creator import get_test_resume
 from tests.raw_data import TEST_JOB_DESCRIPTION
 
 
 @pytest.fixture(scope="function")
 def resume(test_hashed_email: str):
-    return get_resume(test_hashed_email)
+    return get_test_resume(test_hashed_email)
 
 
 @pytest.fixture(scope="function")

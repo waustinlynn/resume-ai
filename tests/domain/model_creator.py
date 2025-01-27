@@ -37,7 +37,7 @@ def get_education_dict():
     }
 
 
-def get_resume(id: str) -> Resume:
+def get_test_resume(id: str) -> Resume:
     return Resume(
         id=id,
         profile=get_profile_dict(),

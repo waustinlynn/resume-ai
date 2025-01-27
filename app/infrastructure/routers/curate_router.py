@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends, status
 from fastapi.responses import JSONResponse
 
 from app.domain.models.chat_completion import ChatCompletion
-from app.domain.models.resume import MissingResumeException
+from app.domain.models.resume import ResumeException
 from app.infrastructure.chat.abstract_chat_completion import AbstractChatCompletion
 from app.infrastructure.factories import (
     get_abstract_chat_completion,
@@ -37,7 +37,7 @@ async def get_resume(
         return abstract_chat_completion.complete(
             chat_completion_model.get_chat_completion_messages()
         )
-    except MissingResumeException as e:
+    except ResumeException as e:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"detail": str(e)}
         )

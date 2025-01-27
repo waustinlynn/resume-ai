@@ -35,5 +35,5 @@ class Resume(BaseModel):
         self.educations.append(education)
 
 
-class MissingResumeException(Exception):
+class ResumeException(Exception):
     pass

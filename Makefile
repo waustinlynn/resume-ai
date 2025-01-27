@@ -13,3 +13,9 @@ test-integration:
 	docker-compose up -d  # Start the services in the background
 	pytest -m integration  # Run integration tests
 	docker-compose down  # Tear down the containers after tests
+
+start:
+	@echo "Starting the application..."
+	env $(shell cat .env)
+	fastapi dev app/main.py --port 8080
+	

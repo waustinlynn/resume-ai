@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
-from app.domain.models.resume import MissingResumeException, Resume
+from app.domain.models.resume import Resume, ResumeException
 from app.infrastructure.chat.abstract_chat_completion import AbstractChatCompletion
 from app.infrastructure.factories import (
     get_abstract_chat_completion,
@@ -12,13 +12,13 @@ from app.infrastructure.factories import (
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
 )
-from tests.domain.model_creator import get_resume
+from tests.domain.model_creator import get_test_resume
 from tests.raw_data import TEST_JOB_DESCRIPTION
 
 
 @pytest.fixture(scope="function")
 def test_resume(test_hashed_email: str) -> Resume:
-    return get_resume(test_hashed_email)
+    return get_test_resume(test_hashed_email)
 
 
 @pytest.fixture(scope="function")
@@ -93,7 +93,7 @@ def test_curate_resume_with_missing_resume_returns_400(
     test_abstract_resume_persistence: AbstractResumePersistence,
     test_hashed_email: str,
 ):
-    test_abstract_resume_persistence.get_resume.side_effect = MissingResumeException(
+    test_abstract_resume_persistence.get_resume.side_effect = ResumeException(
         "Resume not found"
     )
     test_client_headers["content-type"] = "text/plain"

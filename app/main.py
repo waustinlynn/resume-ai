@@ -6,6 +6,7 @@ from app.infrastructure.middleware.header_verification_middleware import (
     EmailHeaderMiddleware,
 )
 from app.infrastructure.routers import curate_router, profile_router, resume_router
+from app.infrastructure.settings import Settings
 
 api_app = FastAPI()
 api_app.add_middleware(EmailHeaderMiddleware)
@@ -16,6 +17,8 @@ api_app.include_router(curate_router.router, prefix="/curate", tags=["curate"])
 
 app = FastAPI()
 app.mount("/api", api_app)
+
+print(Settings())
 
 
 @app.exception_handler(ValidationError)
