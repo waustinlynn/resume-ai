@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.responses import JSONResponse
 
@@ -34,8 +36,11 @@ async def get_resume(
         chat_completion_model = ChatCompletion(
             **{"resume": resume, "job_description": content}
         )
-        return abstract_chat_completion.complete(
+        chat_response = abstract_chat_completion.complete(
             chat_completion_model.get_chat_completion_messages()
+        )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=json.loads(chat_response)
         )
     except ResumeException as e:
         return JSONResponse(

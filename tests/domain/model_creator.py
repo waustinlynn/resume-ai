@@ -27,6 +27,13 @@ def get_experience_dict():
     }
 
 
+def get_skill_dict():
+    return {
+        "category": "Programming Languages",
+        "skills": ["Python", "GO"],
+    }
+
+
 def get_education_dict():
     return {
         "institution_name": "University of Awesome",
@@ -41,6 +48,7 @@ def get_test_resume(id: str) -> Resume:
     return Resume(
         id=id,
         profile=get_profile_dict(),
+        skills=[get_skill_dict()],
         experiences=[get_experience_dict()],
         educations=[get_education_dict()],
     )

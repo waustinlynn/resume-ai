@@ -1,4 +1,5 @@
 import json
+from string import Template
 from typing import List
 
 from pydantic import BaseModel
@@ -11,36 +12,62 @@ class ChatCompletionMessage(BaseModel):
     content: str
 
 
-class ChatCompletion(BaseModel):
-    resume: Resume
-    job_description: str
-    default_prompt: str = """
+DEFAULT_PROMPT = Template(
+    """
     You are a AI agent assigned to help candidates curate a customized resume
     based on an incoming job description.
-    The first user message will be their experience,
+    Your primary goal is to evaluate the job description and candidate's experience
+    to determine the probability that the candidate is a good fit
+    based on the job description.
+    You will want heavily factor in the number of requirements in the job description
+    that are met with the experience.
+    You'll also want to heavily factor in years of experience.
+    You will need to assume that their resume and experience will be filtered through
+    and AI agent.
+    The first user message will be a list of their skills.
+    The next user message will be their experience,
     which will be a list including a job title and their highlights.
     The next message will be a job description.
-    You will need to respond with a list of experiences that
+    You will respond first with a probability (value 1-100)
+    and probability description explaining the reasoning for the score.
+    You will then need to respond with a list of experiences that
     best match the job description.
     You are to only use the content included in the user's
-    highlights with minimal re-wording of highlights.
+    highlights.
+    $reword
     You are to only include up to 6 bullet points that are most
-    relevant to the description.
-    Also return a probability score that will take into account
-    how well the user's experience match the expectations for the position.
+    relevant to the description (if there are more than 6, otherwise include all).
     Your return message should be in the following format:
     {
         "probability": 0.8,
+        "probability_description: "text",
         "experiences": [
-            "id": "unique id that matched the experience id",
-            "highlights": [
-                ...applicable highlights as strings based on job description
-            ]
+            ...replay back the experience objects parsing only the relevant highlights
         ]
     }
     """
+)
 
-    def get_resume_content(self) -> str:
+
+def get_default_prompt(reword: bool) -> str:
+    reword_description = """
+        Do not re-word any of the highlights.
+    """
+
+    if reword:
+        reword_description = """
+            Feel free to reword or reorganize the highlights
+            to best match the job description (do not embellish or fabricate).
+        """
+    return DEFAULT_PROMPT.substitute(reword=reword_description)
+
+
+class ChatCompletion(BaseModel):
+    resume: Resume
+    job_description: str
+    default_prompt: str = get_default_prompt(reword=True)
+
+    def get_resume_experience_content(self) -> str:
         if not self.resume.experiences:
             raise ResumeException("Missing experience in resume")
 
@@ -66,6 +93,14 @@ class ChatCompletion(BaseModel):
             ]
         )
 
+    def get_skills_content(self) -> str:
+        return json.dumps(
+            [
+                f"{skill.category}: {', '.join(skill.skills)}"
+                for skill in self.resume.skills
+            ]
+        )
+
     def get_chat_completion_messages(self) -> List[ChatCompletionMessage]:
         return (
             [
@@ -75,7 +110,12 @@ class ChatCompletion(BaseModel):
             ]
             + [
                 ChatCompletionMessage(
-                    **{"role": "user", "content": self.get_resume_content()}
+                    **{"role": "user", "content": self.get_skills_content()}
+                )
+            ]
+            + [
+                ChatCompletionMessage(
+                    **{"role": "user", "content": self.get_resume_experience_content()}
                 )
             ]
             + [

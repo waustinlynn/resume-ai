@@ -24,7 +24,11 @@ def test_resume(test_hashed_email: str) -> Resume:
 @pytest.fixture(scope="function")
 def test_abstract_chat_completion() -> AbstractChatCompletion:
     abstract_chat_completion = MagicMock(spec=AbstractChatCompletion)
-    abstract_chat_completion.complete.return_value = "Some chat completion messages"
+    abstract_chat_completion.complete.return_value = """
+    {
+        "probability": 8
+    }
+"""
     return abstract_chat_completion
 
 
