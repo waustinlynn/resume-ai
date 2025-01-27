@@ -36,11 +36,3 @@ class ExperienceTest(unittest.TestCase):
 
         experience = Experience(**self.values)
         assert not experience.is_current
-
-    def test_add_highlight(self):
-        """Test that a highlight can be added to the experience."""
-
-        experience = Experience(**self.values)
-        new_experience = "I did a really great thing"
-        experience.add_highlight(new_experience)
-        assert new_experience in [high.description for high in experience.highlights]

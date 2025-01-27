@@ -3,8 +3,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from app.domain.models.experience import MissingExperienceException
-from app.domain.models.resume import Resume
+from app.domain.models.resume import Resume, ResumeException
 
 
 class ChatCompletionMessage(BaseModel):
@@ -43,7 +42,7 @@ class ChatCompletion(BaseModel):
 
     def get_resume_content(self) -> str:
         if not self.resume.experiences:
-            raise MissingExperienceException("Missing experience in resume")
+            raise ResumeException("Missing experience in resume")
 
         applicable_experiences = list(
             filter(
@@ -53,7 +52,7 @@ class ChatCompletion(BaseModel):
         )
 
         if len(applicable_experiences) == 0:
-            raise MissingExperienceException("Missing experience highlights in resume")
+            raise ResumeException("Missing experience highlights in resume")
 
         return json.dumps(
             [

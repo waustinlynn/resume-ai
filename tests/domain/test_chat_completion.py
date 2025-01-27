@@ -3,8 +3,7 @@ import json
 import pytest
 
 from app.domain.models.chat_completion import ChatCompletion
-from app.domain.models.experience import MissingExperienceException
-from app.domain.models.resume import Resume
+from app.domain.models.resume import Resume, ResumeException
 from tests.domain.model_creator import get_test_resume
 from tests.raw_data import TEST_JOB_DESCRIPTION
 
@@ -24,7 +23,7 @@ def test_get_chat_with_resume_missing_experience_raises_exception(
     chat_completion: ChatCompletion,
 ):
     resume.experiences = []
-    with pytest.raises(MissingExperienceException):
+    with pytest.raises(ResumeException):
         chat_completion.get_resume_content()
 
 
@@ -44,7 +43,7 @@ def test_get_chat_excludes_experience_if_highlights_are_missing(
     resume: Resume, chat_completion: ChatCompletion
 ):
     resume.experiences[0].highlights = []
-    with pytest.raises(MissingExperienceException):
+    with pytest.raises(ResumeException):
         chat_completion.get_resume_content()
 
 
