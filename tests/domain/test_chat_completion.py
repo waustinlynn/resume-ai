@@ -32,10 +32,11 @@ def test_get_chat_with_resume_returns_resume_content(chat_completion: ChatComple
     experiences_string = chat_completion.get_resume_experience_content()
     experiences = json.loads(experiences_string)
     for experience in experiences:
-        assert "job_title" in experience
+        assert "title" in experience
         assert "highlights" in experience
+        assert "company_name" in experience
         assert isinstance(experience["highlights"], list)
-        assert isinstance(experience["job_title"], str)
+        assert isinstance(experience["title"], str)
         for highlight in experience["highlights"]:
             assert isinstance(highlight, str)
 
@@ -63,11 +64,6 @@ def test_get_chat_excludes_experience_if_highlights_are_missing(
     resume.experiences[0].highlights = []
     with pytest.raises(ResumeException):
         chat_completion.get_resume_experience_content()
-
-
-def test_get_chat_messages_includes_system_prompt(chat_completion: ChatCompletion):
-    chat_completion_messages = chat_completion.get_chat_completion_messages()
-    assert chat_completion_messages[0].role == "system"
 
 
 def test_get_chat_messages_has_default_system_prompt(chat_completion: ChatCompletion):

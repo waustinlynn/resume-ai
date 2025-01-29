@@ -7,8 +7,6 @@
             "request": "launch",
             "module": "pytest",
             "args": [
-                "-m",
-                "integration",
                 "-s"
             ],
             "justMyCode": false, // Set to true to debug only your code, not libraries
@@ -16,6 +14,24 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}" // Ensures your project root is in the path
             }
+        },
+        {
+            "name": "Run DEV",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "fastapi",
+            "args": [
+                "dev",
+                "app/main.py",
+                "--port",
+                "8080"
+            ],
+            "justMyCode": false, // Set to true to debug only your code, not libraries
+            "console": "integratedTerminal", // Use "integratedTerminal" or "internalConsole"
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}" // Ensures your project root is in the path
+            },
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

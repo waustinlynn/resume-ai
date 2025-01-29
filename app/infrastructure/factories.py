@@ -1,9 +1,14 @@
 import boto3
 from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
+from openai import OpenAI
 
 from app.infrastructure.chat.abstract_chat_completion import (
     AbstractChatCompletion,
     ChatCompletionService,
+)
+from app.infrastructure.chat.abstract_document_generator import (
+    AbstractDocumentGenerator,
+    DocxGenerator,
 )
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
@@ -31,6 +36,16 @@ def get_dynamo_db_client() -> DynamoDBServiceResource:  # type: ignore
     return GLOBAL_DYNAMODB_CLIENT
 
 
+GLOBAL_OPENAI_CLIENT: OpenAI = None
+
+
+def get_openai_client() -> OpenAI:  # type: ignore
+    global GLOBAL_OPENAI_CLIENT
+    if not GLOBAL_OPENAI_CLIENT:
+        GLOBAL_OPENAI_CLIENT = OpenAI(api_key=settings.openai_api_key)
+    return GLOBAL_OPENAI_CLIENT
+
+
 def get_resume_table() -> Table:  # type: ignore
     client = get_dynamo_db_client()
     # throws ResourceInUseException if table already exists
@@ -50,4 +65,8 @@ def get_abstract_resume_persistence() -> AbstractResumePersistence:  # type: ign
 
 
 def get_abstract_chat_completion() -> AbstractChatCompletion:
-    return ChatCompletionService()
+    return ChatCompletionService(get_openai_client())
+
+
+def get_abstract_document_generator() -> AbstractDocumentGenerator:
+    return DocxGenerator()

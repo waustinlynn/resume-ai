@@ -37,13 +37,18 @@ DEFAULT_PROMPT = Template(
     $reword
     You are to only include up to 6 bullet points that are most
     relevant to the description (if there are more than 6, otherwise include all).
+    Make sure you return all experiences back in the order they were sent in.
+    Also include a short paragraph that can be used for a cover letter.
+    Your response will be in json, but do not include any backticks or formatting to json
+    (this will be parsed by a backend system):
     Your return message should be in the following format:
     {
         "probability": 0.8,
         "probability_description: "text",
         "experiences": [
             ...replay back the experience objects parsing only the relevant highlights
-        ]
+        ],
+        "cover_letter_text": "text for cover letter"
     }
     """
 )
@@ -84,7 +89,8 @@ class ChatCompletion(BaseModel):
         return json.dumps(
             [
                 {
-                    "job_title": experience.title,
+                    "company_name": experience.company_name,
+                    "title": experience.title,
                     "highlights": [
                         highlight.description for highlight in experience.highlights
                     ],
@@ -103,11 +109,7 @@ class ChatCompletion(BaseModel):
 
     def get_chat_completion_messages(self) -> List[ChatCompletionMessage]:
         return (
-            [
-                ChatCompletionMessage(
-                    **{"role": "system", "content": self.default_prompt}
-                )
-            ]
+            [ChatCompletionMessage(**{"role": "user", "content": self.default_prompt})]
             + [
                 ChatCompletionMessage(
                     **{"role": "user", "content": self.get_skills_content()}

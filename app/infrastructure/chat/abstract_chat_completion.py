@@ -1,14 +1,11 @@
+import json
 from abc import ABC, abstractmethod
 from typing import List
 
 from openai import OpenAI
 
 from app.domain.models.chat_completion import ChatCompletionMessage
-from app.infrastructure.settings import Settings
-
-settings = Settings()
-
-client = OpenAI(api_key=settings.openai_api_key)
+from app.domain.models.chat_response import ChatResponse
 
 
 class AbstractChatCompletion(ABC):
@@ -18,17 +15,20 @@ class AbstractChatCompletion(ABC):
 
 
 class ChatCompletionService(AbstractChatCompletion):
-    def complete(self, chat_completion_messages: List[ChatCompletionMessage]) -> str:
-        try:
-            # Call the OpenAI API
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[vars(msg) for msg in chat_completion_messages],
-                temperature=0.7,
-            )
+    def __init__(self, openai_client: OpenAI):
+        self.openai_client = openai_client
 
-            # Extract the response text
-            return response.choices[0].message.content
+    def complete(
+        self, chat_completion_messages: List[ChatCompletionMessage]
+    ) -> ChatResponse:
+        # Call the OpenAI API
+        response = self.openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=[vars(msg) for msg in chat_completion_messages],
+            temperature=1,
+        )
 
-        except Exception as e:
-            return f"An error occurred: {e}"
+        content = response.choices[0].message.content
+
+        # Extract the response text
+        return ChatResponse(**json.loads(content))

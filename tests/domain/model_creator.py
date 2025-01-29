@@ -1,3 +1,6 @@
+import json
+
+from app.domain.models.chat_response import ChatResponse
 from app.domain.models.resume import Resume
 
 
@@ -52,3 +55,38 @@ def get_test_resume(id: str) -> Resume:
         experiences=[get_experience_dict()],
         educations=[get_education_dict()],
     )
+
+
+SAMPLE_OPENAI_CHAT_COMPLETION_RESPONSE = """
+{
+    "probability": 0.85,
+    "probability_description": "The candidate has extensive experience as a Lead Software Engineer",
+    "experiences": [
+        {
+            "company_name": "Zoe",
+            "title": "Lead Software Engineer",
+            "highlights": [
+                "Architected scalable systems",
+                "Delivered solutions across various domains including fulfillment",
+                "Designed and implemented an algorithm for an in-app community feature.",
+                "Led the migration from a legacy fulfillment system to a modern solution",
+                "Streamlined customer support resolution by integrating chat providers"
+            ]
+        },
+        {
+            "company_name": "FinThrive",
+            "title": "Lead Software Engineer",
+            "highlights": [
+                "Spearheaded the development of a cloud-native web product leveraging.",
+                "Led a team emphasizing code quality and collaboration resulting in.",
+                "Leveraged serverless functions and SQL/NoSQL databases to optimizey.",
+                "Implemented an event driven architecture for asynchronous"
+            ]
+        }
+    ],
+    "cover_letter_text": "I am excited to apply for the Senior Software Engineer"
+}"""
+
+
+def get_chat_response() -> ChatResponse:
+    return ChatResponse(**json.loads(SAMPLE_OPENAI_CHAT_COMPLETION_RESPONSE))

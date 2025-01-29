@@ -12,7 +12,7 @@ from app.infrastructure.factories import (
 from app.infrastructure.persistence.abstract_resume_persistence import (
     AbstractResumePersistence,
 )
-from tests.domain.model_creator import get_test_resume
+from tests.domain.model_creator import get_chat_response, get_test_resume
 from tests.raw_data import TEST_JOB_DESCRIPTION
 
 
@@ -24,11 +24,7 @@ def test_resume(test_hashed_email: str) -> Resume:
 @pytest.fixture(scope="function")
 def test_abstract_chat_completion() -> AbstractChatCompletion:
     abstract_chat_completion = MagicMock(spec=AbstractChatCompletion)
-    abstract_chat_completion.complete.return_value = """
-    {
-        "probability": 8
-    }
-"""
+    abstract_chat_completion.complete.return_value = get_chat_response()
     return abstract_chat_completion
 
 
@@ -78,8 +74,6 @@ def test_curate_resume_calls_abstract_chat_completion(
     test_local_app_client: TestClient,
     test_client_headers: dict,
     test_abstract_chat_completion: AbstractChatCompletion,
-    test_abstract_resume_persistence: AbstractResumePersistence,
-    test_hashed_email: str,
 ):
     test_client_headers["content-type"] = "text/plain"
     response = test_local_app_client.post(
@@ -95,7 +89,6 @@ def test_curate_resume_with_missing_resume_returns_400(
     test_client_headers: dict,
     test_abstract_chat_completion: AbstractChatCompletion,
     test_abstract_resume_persistence: AbstractResumePersistence,
-    test_hashed_email: str,
 ):
     test_abstract_resume_persistence.get_resume.side_effect = ResumeException(
         "Resume not found"
@@ -107,3 +100,24 @@ def test_curate_resume_with_missing_resume_returns_400(
     assert response.status_code == 400
     assert response.json()["detail"] == "Resume not found"
     test_abstract_chat_completion.complete.assert_not_called()
+
+
+@pytest.mark.integration
+def test_curate_resume_with_doc_response_type_returns_docx(
+    test_local_app_client: TestClient,
+    test_client_headers: dict,
+):
+    test_client_headers["content-type"] = "text/plain"
+    response = test_local_app_client.post(
+        "/api/curate/doc/", headers=test_client_headers, data=TEST_JOB_DESCRIPTION
+    )
+    assert response.status_code == 200
+    assert (
+        response.headers["content-type"]
+        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+    assert (
+        response.headers["content-disposition"]
+        == 'attachment; filename="resume_results.docx"'
+    )
+    assert len(response.content) > 0
