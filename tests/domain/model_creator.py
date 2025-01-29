@@ -79,7 +79,7 @@ SAMPLE_OPENAI_CHAT_COMPLETION_RESPONSE = """
             "highlights": [
                 "Spearheaded the development of a cloud-native web product leveraging.",
                 "Led a team emphasizing code quality and collaboration resulting in.",
-                "Leveraged serverless functions and SQL/NoSQL databases to optimizey.",
+                "Leveraged serverless functions and SQL/NoSQL databases to optimize.",
                 "Implemented an event driven architecture for asynchronous"
             ]
         }
